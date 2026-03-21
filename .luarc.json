@@ -1,0 +1,9 @@
+{
+	"Lua.runtime.version": "Lua 5.1",
+    "diagnostics.disable": [
+        "redefined-local"
+    ],
+	"workspace.ignoreDir": [
+		".direnv"
+	]
+}
