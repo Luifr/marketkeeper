@@ -3,7 +3,9 @@
 --- @field shape love.PolygonShape | love.CircleShape
 --- @field fixture love.Fixture
 --- @field color [number, number, number, number]
+--- @field name string
 local m = {}
+m.__index = m
 
 function m:update()
 end
@@ -25,30 +27,36 @@ end
 --- @param world love.World
 --- @param x number
 --- @param y number
---- @param opts { width: number, height: number, type?: love.BodyType, color?: [number, number, number, number] } | { radius: number, type?: love.BodyType, color?: [number, number, number, number] }
+--- @param size { radius: number } | { width: number, height: number }
+--- @param opts? { type?: love.BodyType, color?: [number, number, number, number], name?: string }
 --- @return SceneObject
-function m.newSceneObject(world, x, y, opts)
+function m.newSceneObject(world, x, y, size, opts)
+	opts = opts or {}
 	--- @type love.Body
 	local body
 	local shape
-	if opts.height ~= nil and opts.width ~= nil then
-		body = love.physics.newBody(world, x + opts.width / 2, y + opts.height / 2, opts.type or "kinematic")
-		shape = love.physics.newRectangleShape(opts.width, opts.height)
+	if size.height ~= nil and size.width ~= nil then
+		body = love.physics.newBody(world, x + size.width / 2, y + size.height / 2, opts.type or "kinematic")
+		shape = love.physics.newRectangleShape(size.width, size.height)
 	else
 		body = love.physics.newBody(world, x, y, opts.type or "kinematic")
-		shape = love.physics.newCircleShape(opts.radius)
+		shape = love.physics.newCircleShape(size.radius)
 	end
 	local fixture = love.physics.newFixture(body, shape)
+	fixture:setFriction(0)
 
 	--- @type SceneObject
 	local sceneObject = {
 		body = body,
 		fixture = fixture,
 		shape = shape,
-		color = opts.color or { 0.5, 0.5, 0.5, 1 }
+		color = opts.color or { 0.5, 0.5, 0.5, 1 },
+		name = opts.name
 	}
 
-	setmetatable(sceneObject, { __index = m })
+	sceneObject.fixture:setUserData(sceneObject)
+
+	setmetatable(sceneObject, m)
 
 	return sceneObject
 end

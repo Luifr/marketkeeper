@@ -6,9 +6,33 @@ function _G.shallowCopy(t)
 	return t2
 end
 
-function _G.printTable(t)
-	for key, value in pairs(t) do
-		print(key, value)
+function printSpaces(count)
+	for _ = 1, count do
+		io.write("  ")
+	end
+end
+
+---@param t any
+---@param maxDepth? integer
+---@param spacing? integer
+function _G.deepPrint(t, maxDepth, spacing)
+	local maxDepth = maxDepth or 5
+	local spacing = spacing or 0
+	if maxDepth == 0 then
+		print("[...]")
+		return
+	end
+	if type(t) == "table" then
+		print("{")
+		for key, value in pairs(t) do
+			printSpaces(spacing + 1)
+			io.write(tostring(key) .. " = ")
+			deepPrint(value, maxDepth - 1, spacing + 1)
+		end
+		printSpaces(spacing)
+		print("}")
+	else
+		print(tostring(t))
 	end
 end
 
@@ -25,7 +49,7 @@ end
 --- @param table T[]
 --- @param callback fun(item: T, index: integer): nil
 function _G.forEach(table, callback)
-	for index, item in ipairs(table) do
+	for index, item in pairs(table) do
 		callback(item, index)
 	end
 end
@@ -110,6 +134,19 @@ end
 ---@return T
 function _G.randomArrayItem(tbl)
 	return tbl[math.random(#tbl)]
+end
+
+---@generic T : any
+---@param tbl T[]
+---@param predicate fun(item: T): boolean
+---@return integer | nil
+function _G.findIndex(tbl, predicate)
+	for index, val in ipairs(tbl) do
+		if predicate(val) then
+			return index
+		end
+	end
+	return nil
 end
 
 return _G

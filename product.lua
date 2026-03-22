@@ -75,6 +75,7 @@ function m.loadSprites()
 	sprites["Soy Milk"] = love.graphics.newImage("sprites/soy-milk.png")
 end
 
+--- @return love.Image
 function m:getSprite()
 	return sprites[self.type]
 end

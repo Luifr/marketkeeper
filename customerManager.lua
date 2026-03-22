@@ -7,20 +7,21 @@ local Product = require("product")
 --- @field world love.World
 --- @field customerSpawnTimer number
 local m = {}
+m.__index = m
 
 local customerSpawnPosition = {
 	x = 450,
-	y = 450
+	y = 500
 }
 
-local maxCustomers = 6
-local maxProductsPerCustomer = 6
+local maxCustomers = 10
+local maxProductsPerCustomer = 1
 
-local maxNeedsTotal = maxCustomers * maxProductsPerCustomer * 0.85
-local maxNeedsPerProduct = maxNeedsTotal / Product.typeLength() * 1.35
+local maxNeedsTotal = maxCustomers
+local maxNeedsPerProduct = math.ceil(maxNeedsTotal / Product.typeLength() * 1.35)
 
 local customerSpawnCheckTime = 6
-local chanceToSpawnCustomer = 0.2
+local chanceToSpawnCustomer = 1
 
 --- @param customerManager CustomerManager
 --- @return table<ProductType, number>
@@ -30,7 +31,8 @@ local function getAllCustomerNeedsGrouped(customerManager)
 	local totalNeeds = 0
 
 	for _, customer in pairs(customerManager.customers) do
-		for product, quantity in pairs(customer.needs) do
+		for _, need in ipairs(customer.needs) do
+			local product, quantity = need[1], need[2]
 			totalNeeds = totalNeeds + quantity
 			totalNeedsHash[product] = (totalNeedsHash[product] or 0) + quantity
 		end
@@ -46,13 +48,6 @@ function m:spawnCustomer()
 
 	local customerNeedsAmount = math.min(math.random(maxProductsPerCustomer), maxNeedsTotal - totalNeeds)
 
-	local productTypeCopy = Product.intoDictionary(function(type)
-		if totalNeedsHash[type] and totalNeedsHash[type] > maxNeedsPerProduct then
-			return nil
-		end
-		return type
-	end)
-
 	local possibleTypes = _G.filter(Product.typeList, function(type)
 		if totalNeedsHash[type] and totalNeedsHash[type] > maxNeedsPerProduct then
 			return false
@@ -62,11 +57,13 @@ function m:spawnCustomer()
 
 	for _ = 1, customerNeedsAmount do
 		local selectedType = _G.randomArrayItem(possibleTypes)
-		newCustomerNeeds[selectedType] = (newCustomerNeeds[selectedType] or 0) + 1
+		table.insert(newCustomerNeeds, { selectedType, 1 })
 	end
 
+	local newId = #self.customers + 1
 	local newCustomer = Customer.newCustomer(
 		self.world,
+		newId,
 		customerSpawnPosition.x,
 		customerSpawnPosition.y,
 		newCustomerNeeds
@@ -74,6 +71,8 @@ function m:spawnCustomer()
 
 	table.insert(self.customers, newCustomer)
 end
+
+local tootooAudio = love.audio.newSource("audio/too-too.flac", "static")
 
 --- @param customerManager CustomerManager
 local function onSpawnCustomerTimeout(customerManager)
@@ -98,6 +97,7 @@ local function onSpawnCustomerTimeout(customerManager)
 	if shouldSpawnCustomer <= chanceToSpawnCustomer then
 		print("--> Spawn!")
 		customerManager:spawnCustomer()
+		tootooAudio:play()
 	end
 end
 
@@ -121,6 +121,20 @@ function m:render()
 	end
 end
 
+function m:cleanup()
+	local auxLen = tableLen(self.customers)
+	for index, customer in pairs(self.customers) do
+		if customer.state.name == "finished" then
+			customer.person.head.body:destroy()
+			self.customers[index] = nil
+		end
+	end
+
+	if tableLen(self.customers) < auxLen then
+		print(auxLen - tableLen(self.customers)  .." customer(s) is(are) gone")
+	end
+end
+
 --- @param world love.World
 function m.newCustomerManager(world)
 	local customerManager = {
@@ -129,7 +143,7 @@ function m.newCustomerManager(world)
 		customerSpawnTimer = customerSpawnCheckTime
 	}
 
-	setmetatable(customerManager, { __index = m })
+	setmetatable(customerManager, m)
 
 	return customerManager
 end

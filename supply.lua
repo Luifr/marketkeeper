@@ -1,11 +1,8 @@
-local Product = require("product")
 local SceneObject = require("sceneObject")
 
---- @class Shelf
+--- @class Supply
 --- @field sceneObject SceneObject
 --- @field productType Product
---- @field itemCounter integer
---- @field accessNodes integer[]
 local m = {}
 m.__index = m
 
@@ -27,7 +24,6 @@ function m:render()
 
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.draw(image, spriteXPosition, spriteYPosition, 0, spriteScale)
-	love.graphics.print(self.itemCounter, spriteXPosition + width * 8 / 10, spriteYPosition + height * 2 / 5)
 end
 
 --- @param world love.World
@@ -35,21 +31,20 @@ end
 --- @param y number
 --- @param width number
 --- @param height number
-function m.newShelf(world, x, y, width, height)
-	local shelf = setmetatable(
+--- @param product Product
+function m.newSupply(world, x, y, width, height, product)
+	local supply = setmetatable(
 		{
-			productType = Product.newProduct("Banana"),
-			accessNodes = {},
-			itemCounter = 0,
+			productType = product,
 			sceneObject = SceneObject.newSceneObject(world, x, y,
 				{ width = width, height = height })
 		}, m)
 
-	shelf.sceneObject.fixture:setUserData(shelf)
+	supply.sceneObject.fixture:setUserData(supply)
 
-	shelf.sceneObject.color = { math.random(), math.random(), math.random(), 1 }
+	supply.sceneObject.color = { math.random(), math.random(), math.random(), 1 }
 
-	return shelf
+	return supply
 end
 
 return m
