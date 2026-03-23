@@ -21,7 +21,6 @@ local maxNeedsTotal = maxCustomers
 local maxNeedsPerProduct = math.ceil(maxNeedsTotal / Product.typeLength() * 1.35)
 
 local customerSpawnCheckTime = 6
-local chanceToSpawnCustomer = 1
 
 --- @param customerManager CustomerManager
 --- @return table<ProductType, number>
@@ -94,7 +93,11 @@ local function onSpawnCustomerTimeout(customerManager)
 
 	print("--> rand " .. shouldSpawnCustomer)
 
-	if shouldSpawnCustomer <= chanceToSpawnCustomer then
+	-- Start at 20%, goes up to 100% after two minutes
+	local chanceToSpawnCustomer = 20 + timeSinceStart() * 80 / 120
+	print("Chance to spawn customer is now at " .. tostring(chanceToSpawnCustomer) .. "%")
+
+	if shouldSpawnCustomer <= chanceToSpawnCustomer / 100 then
 		print("--> Spawn!")
 		customerManager:spawnCustomer()
 		tootooAudio:play()
@@ -131,7 +134,7 @@ function m:cleanup()
 	end
 
 	if tableLen(self.customers) < auxLen then
-		print(auxLen - tableLen(self.customers)  .." customer(s) is(are) gone")
+		print(auxLen - tableLen(self.customers) .. " customer(s) is(are) gone")
 	end
 end
 
@@ -140,7 +143,7 @@ function m.newCustomerManager(world)
 	local customerManager = {
 		customers = {},
 		world = world,
-		customerSpawnTimer = customerSpawnCheckTime
+		customerSpawnTimer = customerSpawnCheckTime,
 	}
 
 	setmetatable(customerManager, m)

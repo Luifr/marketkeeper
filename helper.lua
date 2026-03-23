@@ -149,4 +149,21 @@ function _G.findIndex(tbl, predicate)
 	return nil
 end
 
+function _G.concat(...)
+	local tbls = { ... }
+	local finalTbl = {}
+	for _, tbl in ipairs(tbls) do
+		for _, item in pairs(tbl) do
+			table.insert(finalTbl, item)
+		end
+	end
+	deepPrint(finalTbl)
+	return finalTbl
+end
+
+local timeAtStart = os.time()
+function _G.timeSinceStart()
+	return os.time() - timeAtStart
+end
+
 return _G
