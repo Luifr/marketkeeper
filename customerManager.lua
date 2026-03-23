@@ -10,7 +10,7 @@ local m = {}
 m.__index = m
 
 local customerSpawnPosition = {
-	x = 450,
+	x = 400,
 	y = 500
 }
 

@@ -16,8 +16,11 @@ local function generateMarketObjects(world, customerManager, virtualWidth, virtu
 	-- Walls
 	local screenWidth, screenHeight = virtualWidth, virtualHeight
 	local wallThickness = 5
+	
+	local leftWallUpperSemgment = SceneObject.newSceneObject(world, 0, 0, { width = wallThickness, height = 125 })
+	table.insert(marketObjects, leftWallUpperSemgment)
 	table.insert(marketObjects,
-		SceneObject.newSceneObject(world, 0, 0, { width = wallThickness, height = screenHeight }))
+		SceneObject.newSceneObject(world, 0, 175, { width = wallThickness, height = screenHeight - 175 }))
 	table.insert(marketObjects, SceneObject.newSceneObject(world, 0, 0, { width = screenWidth, height = wallThickness }))
 	table.insert(marketObjects,
 		SceneObject.newSceneObject(world, screenWidth - wallThickness, 0,
@@ -73,6 +76,13 @@ local function generateMarketObjects(world, customerManager, virtualWidth, virtu
 	revolutionJointUp:setLimits(-math.pi / 2, math.pi / 2)
 	revolutionJointUp:setLimitsEnabled(true)
 	table.insert(marketObjects, doorUp)
+
+	local newDoor = SceneObject.newSceneObject(world, 0, 125, { width = wallThickness, height = 48 }, { type = "dynamic", color = { 0, 0, 0 } })
+	local motorJointNew = love.physics.newMotorJoint(newDoor.body, leftWallUpperSemgment.body, 0.55, false)
+	local revolutionJointNew = love.physics.newRevoluteJoint(newDoor.body, leftWallUpperSemgment.body, 0, 125, false)
+	revolutionJointNew:setLimits(-math.pi / 2, math.pi / 2)
+	revolutionJointNew:setLimitsEnabled(true)
+	table.insert(marketObjects, newDoor)
 
 	-- Counter
 	table.insert(marketObjects,

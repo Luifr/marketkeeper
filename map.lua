@@ -85,6 +85,17 @@ function m:load()
 
 	table.insert(self.nodes[47].neighbours, #self.nodes)
 
+	local exitNode1 = Node.newNode(0, 150)
+	table.insert(exitNode1.neighbours, 1)
+	table.insert(self.nodes, exitNode1)
+	table.insert(self.nodes[1].neighbours, #self.nodes)
+	
+	local exitNode2 = Node.newNode(-50, 150)
+	table.insert(exitNode2.neighbours, #self.nodes)
+	table.insert(self.nodes[1].neighbours, #self.nodes)
+	table.insert(self.nodes, exitNode2)
+	table.insert(exitNode1.neighbours, #self.nodes)
+
 	self.exitNode = #self.nodes
 end
 
