@@ -92,6 +92,7 @@ function m:update(dt, shelves, map, cashRegister)
 	elseif self.state.name == "Checking Out" then
 		if self.state.hasCheckedOut then
 			self.timeoutTimer:resetTimer()
+			self.closestNode = cashRegister.accessNodes[1]
 			local path = map:path(self.closestNode, { map.exitNode })
 			self.state = { name = "Leaving", path = path }
 		else

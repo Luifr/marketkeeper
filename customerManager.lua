@@ -14,7 +14,7 @@ local customerSpawnPosition = {
 	y = 500
 }
 
-local maxCustomers = 10
+local maxCustomers = 7
 local maxProductsPerCustomer = 1
 
 local maxNeedsTotal = maxCustomers
@@ -24,9 +24,9 @@ local customerSpawnCheckTime = function()
 	if timeSinceStart() <= 120 then
 		return 6
 	elseif timeSinceStart() <= 150 then
-		return 4
+		return 5
 	else
-		return 3
+		return 4.5
 	end
 end
 

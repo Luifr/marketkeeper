@@ -14,6 +14,7 @@ local saveFilePath = "marketkeeper.txt"
 ---@param virtualWidth number
 ---@param virtualHeight number
 function m:render(virtualWidth, virtualHeight)
+    love.graphics.setColor(1,1,1)
     love.graphics.setFont(love.graphics.newFont(50))
 
     local moneyWidth, moneyHeight = self.moneyImage:getDimensions()
