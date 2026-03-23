@@ -1,4 +1,6 @@
 function love.conf(t)
+    t.version = 11.5
+
     t.window.title = "Martkeeper"
 
     t.window.resizable = true
