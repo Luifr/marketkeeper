@@ -20,7 +20,15 @@ local maxProductsPerCustomer = 1
 local maxNeedsTotal = maxCustomers
 local maxNeedsPerProduct = math.ceil(maxNeedsTotal / Product.typeLength() * 1.35)
 
-local customerSpawnCheckTime = 6
+local customerSpawnCheckTime = function()
+	if timeSinceStart() <= 120 then
+		return 6
+	elseif timeSinceStart() <= 150 then
+		return 4
+	else
+		return 3
+	end
+end
 
 --- @param customerManager CustomerManager
 --- @return table<ProductType, number>
@@ -77,7 +85,7 @@ local tootooAudio = love.audio.newSource("audio/too-too.flac", "static")
 local function onSpawnCustomerTimeout(customerManager)
 	print("--> Customer spawn timeout")
 
-	customerManager.customerSpawnTimer = customerSpawnCheckTime
+	customerManager.customerSpawnTimer = customerSpawnCheckTime()
 
 	local _, totalNeeds = getAllCustomerNeedsGrouped(customerManager)
 	if tableLen(customerManager.customers) >= maxCustomers then
@@ -143,7 +151,7 @@ function m.newCustomerManager(world)
 	local customerManager = {
 		customers = {},
 		world = world,
-		customerSpawnTimer = customerSpawnCheckTime,
+		customerSpawnTimer = customerSpawnCheckTime(),
 	}
 
 	setmetatable(customerManager, m)
