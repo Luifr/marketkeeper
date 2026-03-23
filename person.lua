@@ -79,7 +79,8 @@ function m:moveTowards(tx, ty, reachThreshold)
 	local x, y = self.head.body:getPosition()
 	local dx, dy = tx - x, ty - y
 	local length = math.sqrt(dx * dx + dy * dy)
-	if length == 0 then
+	if length < (reachThreshold or 1) then
+		body:setLinearVelocity(0, 0)
 		return true
 	end
 	local unitX = dx / length
