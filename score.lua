@@ -82,8 +82,8 @@ function m:loseLife()
         self.lives = self.lives - 1
         if self.lives <= 0 then
             print("Game over!")
-            if (self.money > self.previousHighScore) then
-                -- save high score
+            -- save high score if it does not exists or new score is higher
+            if (not self.previousHighScore or self.money > self.previousHighScore) then
                 love.filesystem.write(saveFilePath, tostring(self.money))
             end
         end
