@@ -3,6 +3,7 @@ local CustomerManager = require('customerManager')
 local Player = require("player")
 local Product = require("product")
 local Map = require("map")
+local Score = require("score")
 local generateMarketObjects = require("marketObjects")
 
 --- @type CustomerManager
@@ -29,6 +30,9 @@ local shelves = {}
 --- @type love.Canvas
 local canvas
 
+--- @type Score
+local score
+
 local virtualWidth
 local virtualHeight
 
@@ -48,12 +52,18 @@ function love.load()
 	--- @type Player
 	_G.player = player
 
+	score = Score.newScore()
+	score:load()
+	_G.score = score
+
 	Product.loadSprites()
 
 	marketObjects, cashRegister, shelves = generateMarketObjects(world, customerManager, virtualWidth, virtualHeight)
 
 	map = Map.newMap()
 	map:load()
+
+	_G.map = map
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -64,9 +74,16 @@ function love.keypressed(key, scancode, isrepeat)
 		-- Check if player is in fron of something interactive
 		player:getObjectCollidingWithRayCast()
 	end
+	if key == "r" and score.lives <= 0 then
+		love.event.quit("restart")
+	end
 end
 
 function love.update(dt)
+	if score.lives <= 0 then
+		return
+	end
+
 	world:update(dt)
 
 	_G.forEach(marketObjects, function(obj)
@@ -84,10 +101,11 @@ function love.update(dt)
 end
 
 function love.draw()
+    love.graphics.setFont(love.graphics.newFont(16))
+
 	love.graphics.setCanvas(canvas)
 	love.graphics.clear()
 	love.graphics.push("all")
-
 
 	_G.forEach(marketObjects, function(obj)
 		obj:render()
@@ -95,6 +113,8 @@ function love.draw()
 	player:render()
 	customerManager:render()
 	-- map:render()
+
+	score:render(virtualWidth, virtualHeight)
 
 	love.graphics.pop()
 	love.graphics.setCanvas()

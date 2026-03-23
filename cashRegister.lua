@@ -29,6 +29,7 @@ function m:checkOutFirstCustomer()
 	local customer = self.customerManager.customers[self.queue[1]]
 	table.remove(self.queue, 1)
 	tchitchiAudio:play()
+	score:increaseScore()
 	customer.state.hasCheckedOut = true
 	customer.person.itemInHand = nil
 	return customer
@@ -41,7 +42,14 @@ function m:firstWaitingCustomer()
 	end
 	local customer = self.customerManager.customers[self.queue[1]]
 	if #customer.state.path == 0 then
-		return customer
+		-- Check if customer is actually at the checkout position
+		local checkoutNode = _G.map.nodes[self.accessNodes[1]]
+		local hx, hy = customer.person.head.body:getPosition()
+		local cx, cy = checkoutNode.x - hx, checkoutNode.y - hy
+		local distance = math.sqrt(cx * cx + cy * cy)
+		if distance < 10 then
+			return customer
+		end
 	end
 	return nil
 end
@@ -54,7 +62,6 @@ function m:myQueueNode(me)
 			return self.accessNodes[queueIndex]
 		end
 	end
-	deepPrint(self.queue, 2)
 	error("me not found " .. me)
 end
 
@@ -80,7 +87,12 @@ end
 
 ---@param customer CustomerID
 function m:removeCustomerFromQueue(customer)
-	table.remove(self.queue, customer)
+	for i, customerId in ipairs(self.queue) do
+		if customerId == customer then
+			table.remove(self.queue, i)
+			return
+		end
+	end
 end
 
 ---@param world love.World

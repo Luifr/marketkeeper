@@ -48,6 +48,8 @@ function m:update(dt, shelves, map, cashRegister)
 			if (self.timeoutTimer:isTimedOut()) then
 				print("Angry client leaving from waiting by the shelf")
 
+				score:loseLife()
+
 				self.balloon = nil
 				self.timeoutTimer:resetTimer()
 				self.balloon = Balloon.newBalloon(love.graphics.newImage("sprites/angry-face.png"))
@@ -99,20 +101,24 @@ function m:update(dt, shelves, map, cashRegister)
 				if self.timeoutTimer:isTimedOut() then
 					print("Angry client leaving from waiting at the cash register " .. self.id)
 
+					score:loseLife()
+
 					self.timeoutTimer:resetTimer()
 					self.person.itemInHand = nil
 					self.balloon = Balloon.newBalloon(love.graphics.newImage("sprites/angry-face.png"))
 					local path = map:path(self.closestNode, { map.exitNode })
 					self.state = { name = "Leaving", path = path }
 
-					-- TODO: customer has to be removed from queue, but this makes the game crash, chech how to fix
-					-- cashRegister:removeCustomerFromQueue(self.id)
+					cashRegister:removeCustomerFromQueue(self.id)
 
 					return
 				end
 
 				local spot = map.nodes[cashRegister:myQueueNode(self.id)]
-				self.person:moveTowards(spot.x, spot.y)
+				if self.person:moveTowards(spot.x, spot.y) then
+					local node = cashRegister:myQueueNode(self.id)
+					if node then self.closestNode = node end
+				end
 			else
 				local targetNode = map.nodes[self.state.path[1]];
 				if self.person:moveTowards(targetNode.x, targetNode.y, 50) then
